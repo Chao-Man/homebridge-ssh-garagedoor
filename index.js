@@ -8,25 +8,25 @@ module.exports = function(homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   homebridge.registerAccessory('homebridge-ssh-garagedoor', 'SSH-GARAGE-DOOR', SshAccessory);
-}
+};
 
 function SshAccessory(log, config) {
   this.log = log;
   this.service = 'Switch';
 
-  this.name = config['name'];
-  this.openCommand = config['open'];
-  this.closeCommand = config['close'];
-  this.stateCommand = config['state'];
-  this.closedValue = config['closed_value'] || "";
+  this.name = config.name;
+  this.openCommand = config.open;
+  this.closeCommand = config.close;
+  this.stateCommand = config.state;
+  this.closedValue = config.closed_value || "";
   this.closedValue = this.closedValue.trim().toLowerCase();
-  this.exactMatch = config['exact_match'] || true;
+  this.exactMatch = config.exact_match || true;
   this.ssh = assign({
-    user: config['user'],
-    host: config['host'],
-    password: config['password'],
-    key: config['key']
-  }, config['ssh']);
+    user: config.user,
+    host: config.host,
+    password: config.password,
+    key: config.key
+  }, config.ssh);
 }
 
 SshAccessory.prototype.matchesString = function(match) {
@@ -36,7 +36,7 @@ SshAccessory.prototype.matchesString = function(match) {
   else {
     return (match.indexOf(this.closedValue) > -1);
   }
-}
+};
 
 SshAccessory.prototype.setState = function(isOpen, callback) {
   var accessory = this;
@@ -55,11 +55,11 @@ SshAccessory.prototype.setState = function(isOpen, callback) {
     accessory.log('Set ' + accessory.name + ' to ' + state);
     callback(null);
   });
-}
+};
 
 SshAccessory.prototype.getState = function(callback) {
   var accessory = this;
-  var command = accessory['stateCommand'];
+  var command = accessory.stateCommand;
 
   var stream = ssh(command, accessory.ssh);
 
@@ -73,7 +73,7 @@ SshAccessory.prototype.getState = function(callback) {
     accessory.log('State of ' + accessory.name + ' is: ' + state);
     callback(null, accessory.matchesString(state));
   });
-}
+};
 
 SshAccessory.prototype.getServices = function() {
   var informationService = new Service.AccessoryInformation();
@@ -92,7 +92,7 @@ SshAccessory.prototype.getServices = function() {
     .on('get', this.getState.bind(this));
     garageDoorService.getCharacteristic(Characteristic.TargetDoorState)
     .on('get', this.getState.bind(this));
-  };
+  }
 
   return [garageDoorService];
-}
+};
